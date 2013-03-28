@@ -84,7 +84,7 @@ abstract class AbstractDb extends AbstractValidator
      * 'schema'  => The schema keys
      * 'field'   => The field to check for a match
      * 'exclude' => An optional where clause or field/value pair to exclude from the query
-     * 'adapter' => An optional database adapter to use
+     * 'adapter' => An instance of \Zend\Db\Adapter\Adapter to use
      *
      * @param array|Traversable|Select $options Options to use for this validator
      * @throws \Zend\Validator\Exception\InvalidArgumentException
