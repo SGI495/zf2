@@ -287,6 +287,22 @@ class TreeRouteStackTest extends TestCase
         $stack->assemble(array(), array('name' => 'foo'));
     }
 
+    public function testAssembleNonExistentChildRoute()
+    {
+        $this->setExpectedException('Zend\Mvc\Router\Exception\RuntimeException', 'Route with name "index" does not have child routes');
+        $stack = new TreeRouteStack();
+        $stack->addRoute(
+            'index',
+            array(
+                'type' => 'Literal',
+                'options' => array(
+                    'route' => '/',
+                ),
+            )
+        );
+        $stack->assemble(array(), array('name' => 'index/foo'));
+    }
+
     public function testDefaultParamIsAddedToMatch()
     {
         $stack = new TreeRouteStack();
@@ -377,6 +393,39 @@ class TreeRouteStackTest extends TestCase
         $routes = $reflectedProperty->getValue($stack);
 
         $this->assertEquals(1000, $routes->get('foo')->priority);
+    }
+
+    public function testPrototypeRoute()
+    {
+        $stack = new TreeRouteStack();
+        $stack->addPrototype(
+            'bar',
+            array('type' => 'literal', 'options' => array('route' => '/bar'))
+        );
+        $stack->addRoute('foo', 'bar');
+        $this->assertEquals('/bar', $stack->assemble(array(), array('name' => 'foo')));
+    }
+
+    public function testChainRouteAssembling()
+    {
+        $stack = new TreeRouteStack();
+        $stack->addPrototype(
+            'bar',
+            array('type' => 'literal', 'options' => array('route' => '/bar'))
+        );
+        $stack->addRoute(
+            'foo',
+            array(
+                'type' => 'literal',
+                'options' => array(
+                    'route' => '/foo'
+                ),
+                'chain_routes' => array(
+                    'bar'
+                ),
+            )
+        );
+        $this->assertEquals('/foo/bar', $stack->assemble(array(), array('name' => 'foo')));
     }
 
     public function testFactory()
